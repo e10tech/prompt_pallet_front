@@ -1,9 +1,37 @@
 // app/login/page.tsx
+"use client";
 
 import type { NextPage } from 'next';
 import Image from 'next/image';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase-browser';
 
 const LoginPage: NextPage = () => {
+  const router = useRouter();
+
+  // すでにログイン済みならリダイレクト
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.replace('/dashboard'); // 好きなページに
+      }
+    })();
+  }, [router]);
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      // 戻したいページを明示するなら↓
+      // Site URL に任せるなら options は省略でOK
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) alert(error.message);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* ヘッダー */}
@@ -16,16 +44,16 @@ const LoginPage: NextPage = () => {
         </div>
       </header>
 
-      {/* メインコンテンツ */}
+      {/* メイン */}
       <main className="flex-grow flex items-center justify-center">
         <div className="w-full max-w-sm p-8 space-y-8 bg-stone-100 rounded-lg shadow-sm">
           <h2 className="text-2xl font-bold text-center text-gray-900">ログイン</h2>
 
           {/* ログインボタン */}
           <div className="space-y-4">
-            {/* 変更点: ボタンに relative を追加し、アイコンを absolute で配置 */}
             <button
               type="button"
+              onClick={signInWithGoogle}
               className="w-full relative flex items-center justify-center px-4 py-3 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100"
             >
               <Image
@@ -33,38 +61,33 @@ const LoginPage: NextPage = () => {
                 alt="Google"
                 width={20}
                 height={20}
-                className="absolute left-6" // アイコンを左から配置
+                className="absolute left-6"
               />
               <span>Googleでログイン</span>
             </button>
+
+            {/* 他プロバイダは後で */}
             <button
               type="button"
-              className="w-full relative flex items-center justify-center px-4 py-3 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-800 bg-white hover:bg-gray-100"
+              disabled
+              className="w-full relative flex items-center justify-center px-4 py-3 border border-gray-300 rounded-full text-sm font-medium text-gray-400 bg-white cursor-not-allowed"
+              title="準備中だよ〜"
             >
-              <Image
-                src="/icons/icon_x.svg"
-                alt="X"
-                width={20}
-                height={20}
-                className="absolute left-6" // アイコンを左から配置
-              />
-              <span>Xでログイン</span>
+              <Image src="/icons/icon_x.svg" alt="X" width={20} height={20} className="absolute left-6" />
+              <span>Xでログイン（準備中）</span>
             </button>
+
             <button
               type="button"
-              className="w-full relative flex items-center justify-center px-4 py-3 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-800 bg-white hover:bg-gray-100"
+              disabled
+              className="w-full relative flex items-center justify-center px-4 py-3 border border-gray-300 rounded-full text-sm font-medium text-gray-400 bg-white cursor-not-allowed"
+              title="準備中だよ〜"
             >
-              <Image
-                src="/icons/icon_discord.svg"
-                alt="Discord"
-                width={20}
-                height={20}
-                className="absolute left-6" // アイコンを左から配置
-              />
-              <span>Discordでログイン</span>
+              <Image src="/icons/icon_discord.svg" alt="Discord" width={20} height={20} className="absolute left-6" />
+              <span>Discordでログイン（準備中）</span>
             </button>
           </div>
-          {/* 同意文言 */}
+
           <p className="text-xs text-center text-gray-500">
             このサービスを利用することで、「<a href="/terms" className="underline hover:text-gray-700">利用規約</a>」と「<a href="/privacy" className="underline hover:text-gray-700">プライバシーポリシー</a>」に同意したものとみなされます
           </p>
