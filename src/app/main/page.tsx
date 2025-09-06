@@ -57,6 +57,9 @@ const MainPage: NextPage = () => {
     const fetchCategories = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/categories`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data: Category[] = await res.json();
         setCategories(data);
       } catch (error) {
