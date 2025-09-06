@@ -82,6 +82,9 @@ const MainPage: NextPage = () => {
       // サブカテゴリを取得
       try {
         const res = await fetch(`${API_BASE_URL}/subcategories?category_id=${selectedCategoryId}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data: Subcategory[] = await res.json();
         setSubcategories(data);
       } catch (error) {
